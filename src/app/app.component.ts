@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import * as L from 'leaflet'
 import { fromBlob } from 'geotiff';
+import { TypedArray } from 'geotiff/dist-node/geotiffimage';
 
 @Component({
   selector: 'app-root',
@@ -25,10 +26,10 @@ export class AppComponent {
     const image = await tiff.getImage();
     const width = image.getWidth();
     const height = image.getHeight();
+    const bbox = image.getBoundingBox();
 
     // Read the image data as RGBA
-    const [raster] = await image.readRasters();
-    const bbox = image.getBoundingBox();
+    const raster = await image.readRasters();
 
     // Create a canvas element to display the image
     const canvas = document.createElement('canvas');
@@ -39,7 +40,19 @@ export class AppComponent {
     if (!context) return;
     // Create an ImageData object and set the image data
     const imageData = context.createImageData(width, height);
-    imageData.data.set(new Uint8Array(raster as number));
+    // Convert pixel values to RGBA format
+    const numPixels = width * height;
+    const redChannel = new Uint8Array(raster[0] as ArrayBuffer);
+    const greenChannel = new Uint8Array(raster[1] as ArrayBuffer);
+    const blueChannel = new Uint8Array(raster[2] as ArrayBuffer);
+
+    let dataIndex = 0;
+    for (let i = 0; i < numPixels; i++) {
+      imageData.data[dataIndex++] = redChannel[i];     // Red channel
+      imageData.data[dataIndex++] = greenChannel[i];   // Green channel
+      imageData.data[dataIndex++] = blueChannel[i];    // Blue channel
+      imageData.data[dataIndex++] = 255;               // Alpha channel (assuming full opacity)
+    }
     context.putImageData(imageData, 0, 0);
 
     // Create a Leaflet image overlay
