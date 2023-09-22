@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import * as L from 'leaflet'
 import { fromBlob } from 'geotiff';
-import { TypedArray } from 'geotiff/dist-node/geotiffimage';
 
 @Component({
   selector: 'app-root',
