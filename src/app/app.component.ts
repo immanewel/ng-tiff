@@ -67,7 +67,6 @@ export class AppComponent {
       layers: [blank, polygonGroup, geoTiff],
       attributionControl: false,
     }).setView([51.505, -0.09], 13);
-    L.rectangle(tiffBbox, { fillColor: 'green' }).addTo(geoTiff);
     L.imageOverlay(imageUrl, tiffBbox).addTo(geoTiff);
 
     // Add a tile layer for the base map
